@@ -1,6 +1,7 @@
 import optparse
 import time
-
+import threading
+from threading import Thread
 class UNC:
 
     def __init__(self, infile, outfile, numberadd, casesense):
@@ -8,6 +9,7 @@ class UNC:
         self.outfile = outfile
         self.numberadd = numberadd
         self.casesense = casesense
+        self.lock = threading.Lock()
         # https://www.owasp.org/index.php?title=Testing_for_Default_or_Guessable_User_Account_(OWASP-AT-003)&setlang=es
         self.defaultList = ["admin", "administrator", "root", "system", "guest", "operator", "super"]
 
@@ -20,9 +22,11 @@ class UNC:
         options = self.applyOptionRules(firstname, secondname)
         if self.numberadd >= 0:
             options = options + self.addNumbersToOptions(options, self.numberadd)
+        self.lock.acquire()
         with open(self.outfile, 'a') as f:
             for username in options:
                 f.write(username + "\n")
+        self.lock.release()
 
     def applyOptionRules(self, firstname, secondname):
         options = []
@@ -48,17 +52,22 @@ class UNC:
         numberedUsernames = []
         if mrange > 0:
             for i in range(0, mrange+1):
-                print(username + str(i))
                 numberedUsernames.append(username + str(i))
         return numberedUsernames
 
     def run(self):
+        threads = []
         with open(self.infile, 'r') as userfile:
             for user in userfile:
                 if user == "\n":
                     pass
                 else:
-                    self.createOptions(user)
+                    t = Thread(target=self.createOptions, args=[user])
+                    threads.append(t)
+                    t.start()
+        print("[*] {} threads started".format(len(threads)))
+        for t in threads:
+            t.join()
 
 
 def main():
