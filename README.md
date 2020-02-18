@@ -4,7 +4,7 @@ It can be used for pentesting purposes when only firstname and secondnames can b
 **Please use this only for professional or education purposes**
 
 ## Usage
-Make sure you have a file containing a list of first and secondnames separated by a space. (See [example_input.txt](example_input.txt))
+Make sure you have a file containing a list of first and secondnames separated by a space. (See [example_input.txt](examples/example_input.txt))
 
 Now simply run the following command:
 ```
