@@ -15,7 +15,8 @@ class UNC:
         firstname, secondname = user.strip().split(" ")
         if self.casesense:
             """If case sensitive is set, repeat the process for also only non capitalized input"""
-            self.createOptions(user.lower(), self.numberadd)
+            self.casesense = False
+            self.createOptions(user.lower())
         options = self.applyOptionRules(firstname, secondname)
         if self.numberadd >= 0:
             options = options + self.addNumbersToOptions(options, self.numberadd)
@@ -31,6 +32,10 @@ class UNC:
         options.append(firstname + '.' + secondname)
         options.append(firstname[0] + secondname)
         options.append(firstname[0] + '.' + secondname)
+        options.append(secondname + firstname)
+        options.append(secondname + firstname[0])
+        options.append(secondname[0] + firstname)
+
         return options
 
     def addNumbersToOptions(self, options, mrange):
@@ -56,9 +61,6 @@ class UNC:
                     self.createOptions(user)
 
 
-if __name__ == "__main__":
-    main()
-
 def main():
     infile = "testfile.txt"
     outfile = "out.txt"
@@ -67,14 +69,14 @@ def main():
     parser.add_option('-i', '--inputfile', dest='infile', type='string', help='Specify a file containing a list of first and second names (e.g. John Doe')
     parser.add_option('-o', '--outputfile', dest='outfile', type='string', help='Specify an outputfile, otherwise a custom name will be created')
     parser.add_option('-n', '--numberadd', dest='numberadd', type='string', help='Additionally create usernames with appended number, default is no number')
-    parser.add_option('-c', '--casesensitive', dest='casesense', default=False, help='State \"True\" if you want case sensitivity activated, this will result in a list that is two times the size, default=False')
+    parser.add_option('-c', '--casesensitive', dest='casesense', action="store_true", default=False, help='State \"True\" if you want case sensitivity activated, this will result in a list that is two times the size, default=False')
 
     (options, args) = parser.parse_args()
     if options.infile == None:
         print('[-] No inputfile specified')
         print(parser.usage())
         exit(0)
-    if options.outputfile == None:
+    if options.outfile == None:
         outfile = "usernames_" + time.strftime("%Y%m%d-%H%M%S")
         print('[-] No outputfile specified, creating default file {}'.format(outfile))
     else:
@@ -82,9 +84,12 @@ def main():
     if options.numberadd == None:
         numberadd = -1
     else:
-        numberadd = options.numberadd
+        numberadd = int(options.numberadd)
 
     print('[+] Starting creating username file')
     unc = UNC(options.infile, outfile, numberadd, options.casesense)
     unc.run()
     print('[+] List creation finished: {}'.format(outfile))
+
+if __name__ == "__main__":
+    main()
