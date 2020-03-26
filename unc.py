@@ -24,12 +24,11 @@ class UNC:
     def createEmptyFile(self):
         open(self.outfile, 'w').close()
 
-    def createOptions(self, user):
+    def createOptions(self, user, casesense_run = False):
         firstname, secondname = user.strip().split(" ")
-        if self.casesense:
+        if self.casesense and not casesense_run:
             """If case sensitive is set, repeat the process for also only non capitalized input"""
-            self.casesense = False
-            self.createOptions(user.lower())
+            self.createOptions(user.lower(), True)
         options = self.applyOptionRules(firstname, secondname)
         if self.numberadd >= 0:
             options = options + self.addNumbersToOptions(options, self.numberadd)
